@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 	"weixinScraperSingle/adsl"
+	"weixinScraperSingle/collect"
 	"weixinScraperSingle/cookiePool"
 	"weixinScraperSingle/fetchBing"
 	"weixinScraperSingle/fetchSoGou"
@@ -20,7 +21,7 @@ func main() {
 	go fetchSoGou.Run()
 	go fetchBing.Run()
 	//
-	//go collect.Collect()
+	go collect.Collect()
 	//
 	//var NewsChan = make(chan *model.Article, 100) // 保存采集到的新闻信息
 	//go postArticle.Run(NewsChan)
