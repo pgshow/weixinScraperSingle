@@ -111,6 +111,9 @@ func fetchCookie() (cookie []*http.Cookie) {
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
+
+	adsl.WaitChangingIp()
+
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Errorf("获取Snuid时错误 %s", err)
