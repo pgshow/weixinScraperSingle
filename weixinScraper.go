@@ -7,6 +7,9 @@ import (
 	"weixinScraperSingle/cookiePool"
 	"weixinScraperSingle/fetchBing"
 	"weixinScraperSingle/fetchSoGou"
+	"weixinScraperSingle/model"
+	"weixinScraperSingle/postArticle"
+	"weixinScraperSingle/sogou"
 	"weixinScraperSingle/sqlite"
 )
 
@@ -20,14 +23,14 @@ func main() {
 
 	go fetchSoGou.Run()
 	go fetchBing.Run()
-	//
+
 	go collect.Collect()
-	//
-	//var NewsChan = make(chan *model.Article, 100) // 保存采集到的新闻信息
-	//go postArticle.Run(NewsChan)
+
+	var NewsChan = make(chan *model.Article, 100) // 保存采集到的新闻信息
+	go postArticle.Run(NewsChan)
 
 	for {
-		//sogou.Run(NewsChan)
+		sogou.Run(NewsChan)
 		time.Sleep(time.Minute)
 	}
 }

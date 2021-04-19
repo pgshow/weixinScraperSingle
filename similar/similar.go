@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	logger            = util.GetLogger("similar")
-	bingFetchErrTimes = new(int)
+	logger = util.GetLogger("similar")
 )
 
 // CheckOrigin 相似度算法来源:https://ginson.wang/138.html
@@ -92,6 +91,10 @@ func ChooseSentences(content *string) []string {
 		if utf8.RuneCountInString(x) >= 10 && utf8.RuneCountInString(x) < 20 {
 			longSentences = append(longSentences, x)
 		}
+	}
+
+	if longSentences == nil {
+		return nil
 	}
 
 	if len(longSentences) < sampleNum {

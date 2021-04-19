@@ -23,6 +23,12 @@ var (
 func Collect() {
 	for {
 		body := fetchSina()
+
+		if body == "" {
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
 		titles := getTitles(body)
 		words := getWords(titles)
 
@@ -184,6 +190,11 @@ func extractAndCheck(body string) (mps []model.WeixinMp) {
 
 		// 原创度检查
 		sentences := similar.ChooseSentences(&brief) // 随机提取文章里的一些长句
+
+		if sentences == nil {
+			logger.Infof("%s 没有提取到句子", mpName)
+			continue
+		}
 
 		originRate := similar.CheckOrigin(&sentences) // 逐个搜索长句,检查原创度
 

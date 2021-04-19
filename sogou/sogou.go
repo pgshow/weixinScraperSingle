@@ -19,8 +19,7 @@ import (
 )
 
 var (
-	logger             = util.GetLogger("soGou")
-	soGouFetchErrTimes = new(int)
+	logger = util.GetLogger("soGou")
 )
 
 func Run(newsChan chan *model.Article) {
@@ -126,6 +125,11 @@ func getContent(mp *model.WeixinMp, inputChan chan *model.Article) {
 
 	// 原创度检查
 	sentences := similar.ChooseSentences(&content) // 随机提取文章里的一些长句
+
+	if sentences == nil {
+		logger.Infof("%s 没有提取到句子", title)
+		return
+	}
 
 	originRate := similar.CheckOrigin(&sentences) // 在百度逐个搜索长句,检查原创度
 
