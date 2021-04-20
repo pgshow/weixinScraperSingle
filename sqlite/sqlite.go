@@ -110,7 +110,7 @@ func SelectMps() (mps []model.WeixinMp) {
 	m, _ := time.ParseDuration("-10m") // 跳过10分钟内检查过的
 	conditionTime := strconv.FormatInt(time.Now().Add(m).Unix(), 10)
 
-	rows, err := util.DB.Query("SELECT mp, mp_name, renew_time FROM 'author' WHERE check_time < " + conditionTime)
+	rows, err := util.DB.Query("SELECT mp, mp_name, renew_time FROM 'author' WHERE check_time < " + conditionTime + " ORDER BY id DESC")
 	if err != nil {
 		logger.Debugf("查询公众号时出现错误 %s", err)
 		return
