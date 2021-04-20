@@ -3,6 +3,7 @@ package fetchSoGou
 
 import (
 	"github.com/parnurzeal/gorequest"
+	"net/http"
 	"strings"
 	"time"
 	"weixinScraperSingle/adsl"
@@ -75,6 +76,7 @@ func Run() {
 func fetchSoGou(profile *SoGouFetcher) (err error) {
 	var (
 		request *gorequest.SuperAgent
+		cookie  []*http.Cookie
 	)
 
 	adsl.WaitChangingIp()
@@ -82,8 +84,10 @@ func fetchSoGou(profile *SoGouFetcher) (err error) {
 	if profile.Request != nil {
 		// 采用上一次访问的 cookie，用于搜狗解析微信文章页地址
 		request = profile.Request
+		cookie = profile.Request.Cookies
 	} else {
 		request = gorequest.New()
+		cookie = cookiePool.GetCookie()
 	}
 
 	resp, body, errs := request.Get(profile.Url).
@@ -91,7 +95,7 @@ func fetchSoGou(profile *SoGouFetcher) (err error) {
 		Set("Content-Type", "text/html; charset=utf-8").
 		Set("Referer", "https://weixin.sogou.com").
 		Set("Pragma", `no-cache`).
-		AddCookies(cookiePool.GetCookie()).
+		AddCookies(cookie).
 		Timeout(30 * time.Second).
 		End()
 

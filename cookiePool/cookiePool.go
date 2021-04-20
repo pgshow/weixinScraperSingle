@@ -32,7 +32,7 @@ func Init() {
 				continue
 			}
 
-			*Pool = append(*Pool, queue{cookie, 50})
+			*Pool = append(*Pool, queue{cookie, 30})
 			logger.Infof("池中有 cookie %d 个", len(*Pool))
 		} else {
 			break
@@ -55,7 +55,7 @@ func Run() {
 
 			//makeCookie(cookieTmp)
 
-			item := queue{cookie, 50}
+			item := queue{cookie, 30}
 
 			mutex.Lock()
 			*Pool = append(*Pool, item)
