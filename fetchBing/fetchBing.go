@@ -16,7 +16,7 @@ type BingFetcher struct {
 }
 
 var (
-	logger            = util.GetLogger("bingSoGou")
+	logger            = util.GetLogger("fetchBing")
 	BingFetchChan     = make(chan BingFetcher)
 	BingResultChan    = make(chan BingFetcher)
 	fetchErrTimes     = new(int)

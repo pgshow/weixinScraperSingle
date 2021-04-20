@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 	"weixinScraperSingle/fetchSoGou"
-
+	"weixinScraperSingle/fetchWeixin"
 	//"weixinScraperSingle/golimit"
 	"weixinScraperSingle/model"
 	"weixinScraperSingle/similar"
@@ -104,11 +104,11 @@ func getContent(mp *model.WeixinMp, inputChan chan *model.Article) {
 	articleUrl := extractArticleUrl(jumpBody)
 
 	// 获取微信文章内容
-	job = fetchSoGou.SoGouFetcher{Url: articleUrl, Request: request}
-	fetchSoGou.SoGouFetchChan <- job
+	jobMp := fetchWeixin.WeixinFetcher{Url: articleUrl}
+	fetchWeixin.WeixinFetchChan <- jobMp
 
-	result = <-fetchSoGou.SoGouResultChan
-	articleBody := result.Body
+	resultMp := <-fetchWeixin.WeixinResultChan
+	articleBody := resultMp.Body
 
 	if articleBody == "" {
 		return

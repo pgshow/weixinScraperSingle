@@ -1,27 +1,23 @@
-// Package fetchSoGou 把要获取的object丢进fetchChan里即了fetch到需要的body
-package fetchSoGou
+// Package fetchWeixin 把要获取的object丢进fetchChan里即了fetch到需要的body
+package fetchWeixin
 
 import (
 	"github.com/parnurzeal/gorequest"
-	"strings"
 	"time"
 	"weixinScraperSingle/adsl"
-	"weixinScraperSingle/cookiePool"
 	"weixinScraperSingle/util"
 )
 
-type SoGouFetcher struct {
-	FetchType string
-	Url       string
-	Request   *gorequest.SuperAgent
-	Body      string
-	Err       error
+type WeixinFetcher struct {
+	Url  string
+	Body string
+	Err  error
 }
 
 var (
-	logger            = util.GetLogger("fetchSoGou")
-	SoGouFetchChan    = make(chan SoGouFetcher)
-	SoGouResultChan   = make(chan SoGouFetcher)
+	logger            = util.GetLogger("fetchWeixin")
+	WeixinFetchChan   = make(chan WeixinFetcher)
+	WeixinResultChan  = make(chan WeixinFetcher)
 	fetchErrTimes     = new(int)
 	fetchTimeOutTimes = new(int)
 	noInternetErrs    = []string{"network is unreachable", "read tcp"}
@@ -29,12 +25,12 @@ var (
 )
 
 func Run() {
-	for item := range SoGouFetchChan {
+	for item := range WeixinFetchChan {
 	retry:
-		fetchSoGou(&item)
+		fetchBing(&item)
 
 		if item.Err != nil {
-			logger.Errorf("访问搜狗时错误 %s", item.Err)
+			logger.Errorf("访问微信时错误 %s", item.Err)
 
 			if util.ContainAny(item.Err.Error(), noInternetErrs) {
 				// 网络无法连接立即重试
@@ -61,38 +57,18 @@ func Run() {
 		*fetchErrTimes = 0
 		*fetchTimeOutTimes = 0
 
-		if strings.Contains(item.Body, "请输入验证码") {
-			logger.Errorf("搜狗要求输入验证码")
-			adsl.ChangeIP()
-			time.Sleep(2 * time.Second)
-			goto retry
-		}
-
-		SoGouResultChan <- item
+		WeixinResultChan <- item
 		time.Sleep(6 * time.Second)
 	}
 }
 
-func fetchSoGou(profile *SoGouFetcher) (status string) {
-	var (
-		request *gorequest.SuperAgent
-	)
-
+func fetchBing(profile *WeixinFetcher) (status string) {
 	adsl.WaitChangingIp()
 
-	if profile.Request != nil {
-		// 采用上一次访问的 cookie，用于搜狗解析微信文章页地址
-		request = profile.Request
-	} else {
-		request = gorequest.New()
-	}
-
-	resp, body, errs := request.Get(profile.Url).
+	resp, body, errs := gorequest.New().Get(profile.Url).
 		Set("User-Agent", util.GetRandomUA()).
 		Set("Content-Type", "text/html; charset=utf-8").
-		Set("Referer", "https://weixin.sogou.com").
 		Set("Pragma", `no-cache`).
-		AddCookies(cookiePool.GetCookie()).
 		Timeout(30 * time.Second).
 		End()
 

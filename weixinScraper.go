@@ -7,6 +7,7 @@ import (
 	"weixinScraperSingle/cookiePool"
 	"weixinScraperSingle/fetchBing"
 	"weixinScraperSingle/fetchSoGou"
+	"weixinScraperSingle/fetchWeixin"
 	"weixinScraperSingle/model"
 	"weixinScraperSingle/postArticle"
 	"weixinScraperSingle/sogou"
@@ -23,6 +24,7 @@ func main() {
 
 	go fetchSoGou.Run()
 	go fetchBing.Run()
+	go fetchWeixin.Run()
 
 	go collect.Collect()
 
