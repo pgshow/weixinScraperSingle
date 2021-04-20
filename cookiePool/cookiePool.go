@@ -37,14 +37,14 @@ func Init() {
 		} else {
 			break
 		}
-		time.Sleep(6 * time.Second)
+		time.Sleep(8 * time.Second)
 	}
 }
 
 func Run() {
 	for {
-		time.Sleep(10 * time.Second)
-		if len(*Pool) < 10 {
+		time.Sleep(30 * time.Second)
+		if len(*Pool) < 20 {
 			cookie := fetchCookie()
 			if cookie == nil {
 				logger.Error("fetch 新 cookie 为 nil")
