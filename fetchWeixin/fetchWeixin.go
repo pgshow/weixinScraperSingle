@@ -11,7 +11,6 @@ import (
 type WeixinFetcher struct {
 	Url  string
 	Body string
-	Err  error
 }
 
 var (
@@ -27,12 +26,12 @@ var (
 func Run() {
 	for item := range WeixinFetchChan {
 	retry:
-		fetchBing(&item)
+		err := fetchBing(&item)
 
-		if item.Err != nil {
-			logger.Errorf("访问微信时错误 %s", item.Err)
+		if err != nil {
+			logger.Errorf("访问微信时错误 %s", err)
 
-			if util.ContainAny(item.Err.Error(), noInternetErrs) {
+			if util.ContainAny(err.Error(), noInternetErrs) {
 				// 网络无法连接立即重试
 				*fetchErrTimes += 1
 				if *fetchErrTimes > 5 {
@@ -42,7 +41,7 @@ func Run() {
 				goto retry
 			}
 
-			if util.ContainAny(item.Err.Error(), timeOutErrs) {
+			if util.ContainAny(err.Error(), timeOutErrs) {
 				// 访问超时等待几秒在试
 				*fetchTimeOutTimes += 1
 				if *fetchTimeOutTimes > 3 {
@@ -62,7 +61,7 @@ func Run() {
 	}
 }
 
-func fetchBing(profile *WeixinFetcher) (status string) {
+func fetchBing(profile *WeixinFetcher) (err error) {
 	adsl.WaitChangingIp()
 
 	resp, body, errs := gorequest.New().Get(profile.Url).
@@ -72,9 +71,8 @@ func fetchBing(profile *WeixinFetcher) (status string) {
 		Timeout(30 * time.Second).
 		End()
 
-	if err := util.ErrAndStatus(errs, resp); err != nil {
+	if err = util.ErrAndStatus(errs, resp); err != nil {
 		profile.Body = ""
-		profile.Err = err
 	} else {
 		profile.Body = body
 	}
