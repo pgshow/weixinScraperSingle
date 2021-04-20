@@ -50,7 +50,7 @@ func Run() {
 				*fetchTimeOutTimes += 1
 				if *fetchTimeOutTimes > 3 {
 					adsl.ChangeIP()
-					*fetchErrTimes = 0
+					*fetchErrTimes = 1
 				}
 				time.Sleep(6 * time.Second)
 				goto retry
