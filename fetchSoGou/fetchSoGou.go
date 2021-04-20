@@ -52,7 +52,7 @@ func Run() {
 					adsl.ChangeIP()
 					*fetchErrTimes = 1
 				}
-				time.Sleep(6 * time.Second)
+				time.Sleep(util.RandSecond(2, 8))
 				goto retry
 			}
 		}
@@ -63,12 +63,12 @@ func Run() {
 		if strings.Contains(item.Body, "请输入验证码") {
 			logger.Errorf("搜狗要求输入验证码")
 			adsl.ChangeIP()
-			time.Sleep(2 * time.Second)
+			time.Sleep(util.RandSecond(2, 5))
 			goto retry
 		}
 
 		SoGouResultChan <- item
-		time.Sleep(6 * time.Second)
+		time.Sleep(util.RandSecond(6, 15))
 	}
 }
 

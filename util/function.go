@@ -94,3 +94,10 @@ func RemoveRepByLoop(slc []string) []string {
 	}
 	return result
 }
+
+func RandSecond(min, max int64) time.Duration {
+	if min >= max || min == 0 || max == 0 {
+		return time.Duration(max) * time.Second
+	}
+	return time.Duration(rand.Int63n(max-min)+min) * time.Second
+}
