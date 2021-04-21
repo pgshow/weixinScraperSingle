@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"weixinScraper/golimit"
 	"weixinScraperSingle/fetchSoGou"
 	"weixinScraperSingle/fetchWeixin"
 	//"weixinScraperSingle/golimit"
@@ -19,38 +20,39 @@ import (
 )
 
 var (
-	logger = util.GetLogger("soGou")
+	logger  = util.GetLogger("soGou")
+	GoLimit = 2 // 并发数
 )
 
-func Run(newsChan chan *model.Article) {
-	items := sqlite.SelectMps()
-
-	for _, item := range items {
-		getContent(&item, newsChan)
-	}
-}
-
 //func Run(newsChan chan *model.Article) {
-//	g := golimit.NewGoLimit(util.GoLimit)
-//
 //	items := sqlite.SelectMps()
 //
 //	for _, item := range items {
-//		g.Add()
-//
-//		go func(g *golimit.GoLimit, mp model.WeixinMp, ch chan *model.Article) {
-//			defer func() {
-//				if err := recover(); err != nil {
-//					logger.Infof("%s 任务失败: %s", mp.MpName, err)
-//				}
-//				g.Done()
-//			}()
-//
-//			getContent(&mp, ch)
-//
-//		}(g, item, newsChan)
+//		getContent(&item, newsChan)
 //	}
 //}
+
+func Run(newsChan chan *model.Article) {
+	g := golimit.NewGoLimit(GoLimit)
+
+	items := sqlite.SelectMps()
+
+	for _, item := range items {
+		g.Add()
+
+		go func(g *golimit.GoLimit, mp model.WeixinMp, ch chan *model.Article) {
+			defer func() {
+				if err := recover(); err != nil {
+					logger.Infof("%s 任务失败: %s", mp.MpName, err)
+				}
+				g.Done()
+			}()
+
+			getContent(&mp, ch)
+
+		}(g, item, newsChan)
+	}
+}
 
 // 抓取公众号最新文章的内容
 func getContent(mp *model.WeixinMp, inputChan chan *model.Article) {

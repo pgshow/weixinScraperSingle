@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"weixinScraper/golimit"
 	"weixinScraperSingle/fetchSoGou"
 	"weixinScraperSingle/model"
 	"weixinScraperSingle/similar"
@@ -17,10 +18,13 @@ import (
 )
 
 var (
-	logger = util.GetLogger("collect")
+	logger  = util.GetLogger("collect")
+	GoLimit = 2 // 并发数
 )
 
 func Collect() {
+	g := golimit.NewGoLimit(GoLimit)
+
 	for {
 		body := fetchSina()
 
@@ -34,7 +38,19 @@ func Collect() {
 
 		// 通过关键词抓取公众号
 		for _, word := range words {
-			getMps(word)
+			g.Add()
+			go func(g *golimit.GoLimit, keyword string) {
+				defer func() {
+					if err := recover(); err != nil {
+						logger.Infof("%s 任务失败: %s", keyword, err)
+					}
+					g.Done()
+				}()
+
+				getMps(keyword)
+
+			}(g, word)
+
 		}
 
 		time.Sleep(time.Minute)

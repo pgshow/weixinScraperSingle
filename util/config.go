@@ -5,7 +5,6 @@ import (
 )
 
 const (
-	GoLimit         = 1 // 并发数
 	TitleFileDir    = "./txt/cnNews/title/"
 	ContentFileDir  = "./txt/cnNews/content/"
 	MinOriginRate   = 60 // 文章原创度采用限制
