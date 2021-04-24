@@ -4,6 +4,7 @@ package fetchBing
 import (
 	"fmt"
 	"github.com/parnurzeal/gorequest"
+	"strings"
 	"time"
 	"weixinScraperSingle/adsl"
 	"weixinScraperSingle/util"
@@ -20,6 +21,7 @@ var (
 	BingResultChan    = make(chan BingFetcher)
 	fetchErrTimes     = new(int)
 	fetchTimeOutTimes = new(int)
+	helping404        = new(int)
 	noInternetErrs    = []string{"network is unreachable", "read tcp"}
 	timeOutErrs       = []string{"Client.Timeout", "TLS handshake timeout"}
 )
@@ -57,8 +59,22 @@ func Run() {
 		*fetchErrTimes = 0
 		*fetchTimeOutTimes = 0
 
+		// 404公益
+		if strings.Contains(item.Body, "404 公益") {
+			logger.Errorf("%s 404 公益", item.Sentence)
+			*helping404 += 1
+			if *helping404 > 15 {
+				adsl.ChangeIP()
+				*helping404 = 10
+				time.Sleep(util.RandSecond(2, 3))
+				goto retry
+			}
+		}
+
+		*helping404 = 0
+
 		BingResultChan <- item
-		time.Sleep(2 * time.Second)
+		time.Sleep(util.RandSecond(2, 3))
 	}
 }
 
